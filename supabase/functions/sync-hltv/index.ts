@@ -26,7 +26,12 @@ interface Team { name: string; logo?: string | null }
 interface Match { team1: string; team2: string; score1: number; score2: number; date: string | null }
 
 // ------------------------------------------------------------------ HTTP
-async function getHtml(url: string): Promise<string> {
+// Só a página de desafio do Cloudflare. Não olha "challenge-platform": esse script também vem
+// nas páginas normais da HLTV, e uma fase sem jogos ainda seria confundida com bloqueio.
+const isChallenge = (html: string) =>
+  /<title>\s*Just a moment/i.test(html) || /cf_chl_opt|cf-chl-widget|id="challenge-form"/i.test(html);
+
+async function fetchHtml(url: string): Promise<string> {
   const proxy = Deno.env.get('SCRAPE_PROXY');
   const target = proxy ? proxy.replace('{url}', encodeURIComponent(url)) : url;
   const res = await fetch(target, {
@@ -39,10 +44,22 @@ async function getHtml(url: string): Promise<string> {
   });
   const html = await res.text();
   if (!res.ok) throw new Error(`HLTV respondeu ${res.status} em ${url}${res.status === 403 ? ' (Cloudflare: configure SCRAPE_PROXY)' : ''}`);
-  if (/Just a moment|cf-chl|challenge-platform/i.test(html) && !/result-con|team-box/.test(html)) {
-    throw new Error('Bloqueado pelo Cloudflare da HLTV (configure SCRAPE_PROXY)');
-  }
+  if (isChallenge(html)) throw new Error(`Bloqueado pelo Cloudflare da HLTV em ${url} (configure SCRAPE_PROXY)`);
   return html;
+}
+
+/** Tenta de novo quando o proxy cai num IP bloqueado (cada tentativa sai por outro IP). */
+async function getHtml(url: string, attempts = 3): Promise<string> {
+  let last: unknown;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await fetchHtml(url);
+    } catch (e) {
+      last = e;
+      if (!Deno.env.get('SCRAPE_PROXY')) break;
+    }
+  }
+  throw last;
 }
 const parse = (html: string) => new DOMParser().parseFromString(html, 'text/html')!;
 const abs = (src?: string | null) => (!src ? null : src.startsWith('//') ? `https:${src}` : src.startsWith('/') ? `https://www.hltv.org${src}` : src);
