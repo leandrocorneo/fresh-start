@@ -64,7 +64,7 @@ export default function SwissPickEditor({ teams, draft, onChange, locked, status
             const cat = catOf(t.name);
             return (
               <div key={t.name} className="flex items-center gap-2 rounded-lg bg-white/5 px-2 py-1">
-                <TeamLogo name={t.name} logo={t.logo} size={24} />
+                <TeamLogo name={t.name} logo={t.logo ?? null} size={24} />
                 <span className="flex-1 truncate text-sm">{t.name}</span>
                 {SWISS_SLOTS.map((s) => {
                   const full = draft[s.cat].length >= s.max && cat !== s.cat;

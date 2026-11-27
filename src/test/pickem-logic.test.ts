@@ -26,8 +26,8 @@ test('simulação completa: melhor seed sempre vence', () => {
     sim = simulateSwiss(teams, decisions, []);
   }
   expect(sim.done).toBe(true);
-  expect(sim.rounds[0].matches[0].a).toBe(teamKey('Ninjas in Pyjamas'));
-  expect(sim.rounds[0].matches[0].b).toBe(teamKey('M80'));
+  expect(sim.rounds[0]!.matches[0]!.a).toBe(teamKey('Ninjas in Pyjamas'));
+  expect(sim.rounds[0]!.matches[0]!.b).toBe(teamKey('M80'));
   const p = picksFromRecs(sim.recs);
   expect(isSwissComplete(p)).toBe(true);
   // sem confrontos repetidos
@@ -40,7 +40,7 @@ test('resultado real sobrepõe o clique', () => {
   const real: Match[] = [{ team1: 'M80', team2: 'Ninjas in Pyjamas', score1: 13, score2: 7 }];
   const id = matchId(1, teamKey('Ninjas in Pyjamas'), teamKey('M80'));
   const sim = simulateSwiss(teams, { [id]: teamKey('Ninjas in Pyjamas') }, real);
-  const m = sim.rounds[0].matches[0];
+  const m = sim.rounds[0]!.matches[0]!;
   expect(m.real).toBe(true);
   expect(m.winner).toBe(teamKey('M80'));
 });
@@ -93,7 +93,7 @@ test('derive: stage 2 usa classificados reais da stage 1', () => {
   const d = deriveAll({ stage1: { id: 'stage1', name: 's1', sort: 1, hltv_event_id: 1, teams, matches, source: 'hltv', lock_at: null, last_sync: null, sync_error: null } }, {});
   expect(d.stage1.realDone).toBe(true);
   expect(d.stage2.teams.length).toBe(16);
-  expect(d.stage2.teams[0].name).toBe('FUT');
+  expect(d.stage2.teams[0]!.name).toBe('FUT');
   expect(d.stage2.complete).toBe(true);
   expect(d.stage3.complete).toBe(false);
 });

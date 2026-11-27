@@ -15,10 +15,10 @@ interface Props {
 export default function PlayoffPicker({ teams, draft, onChange, locked, statusOf, logoOf }: Props) {
   const qfMatches = QF_PAIRS.map(([a, b]) => [teams[a]?.name ?? '', teams[b]?.name ?? '']);
   const sfMatches = [
-    [draft.qf[0], draft.qf[1]],
-    [draft.qf[2], draft.qf[3]],
+    [draft.qf[0] ?? '', draft.qf[1] ?? ''],
+    [draft.qf[2] ?? '', draft.qf[3] ?? ''],
   ];
-  const finalMatch = [draft.sf[0], draft.sf[1]];
+  const finalMatch = [draft.sf[0] ?? '', draft.sf[1] ?? ''];
 
   function set(round: PlayoffRound, idx: number, team: string) {
     if (locked || !team) return;
@@ -27,9 +27,11 @@ export default function PlayoffPicker({ teams, draft, onChange, locked, statusOf
     // remove escolhas posteriores que ficaram impossíveis
     for (let i = 0; i < 2; i++) {
       const pool = [next.qf[i * 2], next.qf[i * 2 + 1]];
-      if (next.sf[i] && !pool.some((t) => t && sameTeam(t, next.sf[i]))) next.sf[i] = '';
+      const sf = next.sf[i];
+      if (sf && !pool.some((t) => t && sameTeam(t, sf))) next.sf[i] = '';
     }
-    if (next.final[0] && !next.sf.some((t) => t && sameTeam(t, next.final[0]))) next.final[0] = '';
+    const champion = next.final[0];
+    if (champion && !next.sf.some((t) => t && sameTeam(t, champion))) next.final[0] = '';
     onChange(next);
   }
 

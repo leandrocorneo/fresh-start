@@ -43,6 +43,6 @@ export function orderTeams(list: Team[], seedOrder: string[], tailOrder: string[
 export function initials(name: string): string {
   const clean = name.replace(/[^A-Za-z0-9 ]/g, ' ').trim();
   const parts = clean.split(/\s+/).filter(Boolean);
-  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  if (parts.length >= 2) return (parts[0]!.charAt(0) + parts[1]!.charAt(0)).toUpperCase();
   return clean.slice(0, 3).toUpperCase();
 }

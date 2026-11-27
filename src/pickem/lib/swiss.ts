@@ -101,10 +101,10 @@ export const matchId = (round: number, a: string, b: string) => `${round}:${pair
 function pairGroup(list: string[], recs: Recs): [string, string][] | null {
   if (list.length === 0) return [];
   if (list.length === 1) return null;
-  const [first, ...rest] = list;
+  const [first, ...rest] = list as [string, ...string[]];
   // maior seed do grupo enfrenta o menor seed possível sem repetir confronto
   for (let i = rest.length - 1; i >= 0; i--) {
-    const cand = rest[i];
+    const cand = rest[i]!;
     if (recs.get(first)!.opps.includes(cand)) continue;
     const sub = pairGroup(rest.filter((_, j) => j !== i), recs);
     if (sub) return [[first, cand], ...sub];
@@ -121,8 +121,8 @@ function pairRound(recs: Recs): [string, string][] {
     groups.get(g)!.push(r);
   }
   const ordered = [...groups.entries()].sort((x, y) => {
-    const [xw, xl] = x[0].split('-').map(Number);
-    const [yw, yl] = y[0].split('-').map(Number);
+    const [xw = 0, xl = 0] = x[0].split('-').map(Number);
+    const [yw = 0, yl = 0] = y[0].split('-').map(Number);
     return yw - xw || xl - yl;
   });
   const pairs: [string, string][] = [];
@@ -138,7 +138,7 @@ function pairRound(recs: Recs): [string, string][] {
     if (keys.length % 2 === 1) carry = [keys.pop()!]; // não deveria acontecer com 16 times
     const p = pairGroup(keys, recs);
     if (p) pairs.push(...p);
-    else for (let i = 0; i < keys.length / 2; i++) pairs.push([keys[i], keys[keys.length - 1 - i]]);
+    else for (let i = 0; i < keys.length / 2; i++) pairs.push([keys[i]!, keys[keys.length - 1 - i]!]);
   }
   return pairs;
 }
@@ -163,7 +163,7 @@ export function simulateSwiss(teams: Team[], decisions: Record<string, string>, 
   for (let n = 1; n <= 5; n++) {
     if ([...recs.values()].every(isDone)) break;
     const half = keys.length / 2;
-    const pairs: [string, string][] = n === 1 ? keys.slice(0, half).map((k, i) => [k, keys[i + half]]) : pairRound(recs);
+    const pairs: [string, string][] = n === 1 ? keys.slice(0, half).map((k, i) => [k, keys[i + half]!]) : pairRound(recs);
     const matches: SimMatch[] = pairs.map(([a, b]) => {
       const id = matchId(n, a, b);
       const rw = realWinner.get(pairKey(a, b));

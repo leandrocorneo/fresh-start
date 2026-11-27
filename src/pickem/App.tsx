@@ -143,7 +143,7 @@ export default function App() {
           setIdentity(i);
           setEditingName(false);
         }}
-        onCancel={identity ? () => setEditingName(false) : undefined}
+        {...(identity ? { onCancel: () => setEditingName(false) } : {})}
       />
     );
   }

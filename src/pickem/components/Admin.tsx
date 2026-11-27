@@ -28,7 +28,7 @@ function StageEditor({ stage, pin, onSaved }: { stage: StageRow; pin: string; on
         source,
         teams: JSON.parse(teams),
       };
-      if (source === 'manual') patch.matches = JSON.parse(matches);
+      if (source === 'manual') patch['matches'] = JSON.parse(matches);
       await adminCall({ pin, action: 'update_stage', stage_id: stage.id, patch });
       onSaved(`${stage.name} salvo`);
     } catch (e) {
