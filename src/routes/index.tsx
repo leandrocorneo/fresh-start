@@ -1,23 +1,35 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 
-// The home route ships no og:image, so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
+import App from "../pickem/App";
+import Admin from "../pickem/components/Admin";
+
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Pick'em · PGL Major Singapore 2026" },
+      {
+        name: "description",
+        content: "Simulador e Pick'em da galera para o PGL Major Singapore 2026.",
+      },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
+// O app usa localStorage e o hash da URL (#admin), então só renderiza no navegador.
 function Index() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
+  const [hash, setHash] = useState<string | null>(null);
+
+  useEffect(() => {
+    const read = () => setHash(window.location.hash);
+    read();
+    window.addEventListener("hashchange", read);
+    return () => window.removeEventListener("hashchange", read);
+  }, []);
+
+  if (hash === null) {
+    return <div className="min-h-screen" />;
+  }
+  return hash.startsWith("#admin") ? <Admin /> : <App />;
 }

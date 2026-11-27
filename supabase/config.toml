@@ -1,1 +1,9 @@
 project_id = "tzyhciynojmggkwhrusk"
+
+# As duas funções conferem o ADMIN_PIN por conta própria. A chave nova (sb_publishable_)
+# não é um JWT, então a verificação de JWT do gateway precisa ficar desligada.
+[functions.sync-hltv]
+verify_jwt = false
+
+[functions.admin]
+verify_jwt = false
