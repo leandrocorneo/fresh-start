@@ -14,13 +14,131 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      picks: {
+        Row: {
+          picks: Json
+          player_id: string
+          stage_id: string
+          updated_at: string
+        }
+        Insert: {
+          picks: Json
+          player_id: string
+          stage_id: string
+          updated_at?: string
+        }
+        Update: {
+          picks?: Json
+          player_id?: string
+          stage_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "picks_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "picks_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      players: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          token_hash: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          token_hash: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          token_hash?: string
+        }
+        Relationships: []
+      }
+      stages: {
+        Row: {
+          hltv_event_id: number | null
+          id: string
+          last_sync: string | null
+          lock_at: string | null
+          matches: Json
+          name: string
+          sort: number
+          source: string
+          sync_error: string | null
+          teams: Json
+        }
+        Insert: {
+          hltv_event_id?: number | null
+          id: string
+          last_sync?: string | null
+          lock_at?: string | null
+          matches?: Json
+          name: string
+          sort: number
+          source?: string
+          sync_error?: string | null
+          teams?: Json
+        }
+        Update: {
+          hltv_event_id?: number | null
+          id?: string
+          last_sync?: string | null
+          lock_at?: string | null
+          matches?: Json
+          name?: string
+          sort?: number
+          source?: string
+          sync_error?: string | null
+          teams?: Json
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_my_picks: {
+        Args: { p_token: string }
+        Returns: {
+          picks: Json
+          stage_id: string
+          updated_at: string
+        }[]
+      }
+      pickem_hash: { Args: { p: string }; Returns: string }
+      register_player: {
+        Args: { p_name: string; p_token: string }
+        Returns: string
+      }
+      save_picks: {
+        Args: { p_picks: Json; p_stage: string; p_token: string }
+        Returns: undefined
+      }
+      submitted_players: {
+        Args: never
+        Returns: {
+          player_id: string
+          stage_id: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
