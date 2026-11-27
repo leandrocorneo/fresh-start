@@ -51,8 +51,8 @@ export const ALIASES: Record<string, string> = {
   futesports: 'fut',
 };
 
-/** Esconde os palpites dos outros até a fase fechar (o banco também só libera depois). */
-export const HIDE_PICKS_UNTIL_LOCK = true;
+/** true = esconde os palpites dos outros até a fase fechar (o banco também precisa bloquear, ver docs/sql/003). */
+export const HIDE_PICKS_UNTIL_LOCK = false;
 /** Recarrega os dados da página a cada X ms. */
 export const POLL_MS = 60_000;
 /** Se o último sync com a HLTV for mais velho que isso, a página pede um novo. */

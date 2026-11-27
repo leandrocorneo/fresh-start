@@ -76,7 +76,7 @@ export default function PicksTable({ rows, playoff, locked, myId, logoOf }: Prop
                   })
                 ) : (
                   <td colSpan={groups.length} className="bg-white/5 px-3 py-2 text-center text-slate-400">
-                    {submitted ? '✓ palpite enviado — aparece quando a fase fechar' : 'ainda não enviou'}
+                    {submitted ? '✓ palpite enviado' : 'ainda não enviou'}
                   </td>
                 )}
                 <td className="rounded-r-lg bg-[#16213a] px-3 py-2 text-center">

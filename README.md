@@ -17,8 +17,8 @@ que marca em vermelho cada palpite que já errou, conferindo com os resultados d
 - **Regras (Pick'em do CS2):** 3:0 só acerta se o time terminar 3-0 (uma derrota já é erro). 3:1/3:2 só acerta se o time
   classificar com 3-1 ou 3-2 (se ele for 3-0 ou for eliminado, é erro). 0:3 só acerta se terminar 0-3. São precisos 5 acertos
   para "passar" na fase. Nos playoffs, você escolhe o vencedor de cada jogo, e a disputa de 3º lugar não conta.
-- **Sigilo:** os palpites dos outros só aparecem depois que a fase fecha (o próprio banco bloqueia). Antes disso, a tabela só
-  mostra quem já enviou.
+- **Palpites abertos:** os palpites de todo mundo ficam visíveis o tempo todo, mesmo antes da fase fechar
+  (`docs/sql/003_picks_publicos.sql` + `HIDE_PICKS_UNTIL_LOCK = false`). O fechamento só trava a edição.
 - **HLTV:** a edge function `sync-hltv` lê `hltv.org/events/<id>` (times e logos) e `hltv.org/results?event=<id>`
   (placares). A página pede um sync quando o último tem mais de 10 minutos, e dá para agendar a cada 10 min com o pg_cron.
 
