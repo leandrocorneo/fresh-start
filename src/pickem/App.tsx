@@ -356,7 +356,7 @@ export default function App() {
 
           <section className="card space-y-2">
             <div className="flex items-center justify-between">
-              <h2 className="font-bold">Resultado real (HLTV)</h2>
+              <h2 className="font-bold">Resultado real {row?.source === 'manual' ? '' : '(HLTV)'}</h2>
               <button className="btn-ghost text-xs" onClick={sync} disabled={syncing}>
                 {syncing ? 'Atualizando…' : 'Atualizar'}
               </button>
@@ -365,7 +365,7 @@ export default function App() {
               Último sync: {fmt(row?.last_sync ?? null)}
               {row?.source === 'manual' && ' · resultados manuais'}
             </p>
-            {row?.sync_error && <p className="text-xs text-amber-400">Aviso do sync: {row.sync_error}</p>}
+            {row?.sync_error && row.source !== 'manual' && <p className="text-xs text-amber-400">Aviso do sync: {row.sync_error}</p>}
             {isPlayoff ? (
               d.playoffs.matches.length ? (
                 <ul className="space-y-1 text-sm">

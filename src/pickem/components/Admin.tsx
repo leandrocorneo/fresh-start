@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { adminCall, loadData, triggerSync } from '../lib/api';
-import type { Player, StageRow } from '../lib/types';
+import { deriveAll, type Derived } from '../lib/derive';
+import type { Player, StageId, StageRow } from '../lib/types';
+import ResultsEditor from './ResultsEditor';
 import PickHistory from './PickHistory';
 
 const PIN_KEY = 'pickem-admin-pin';
@@ -12,7 +14,17 @@ const toLocal = (iso: string | null) => {
   return new Date(d.getTime() - d.getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
 };
 
-function StageEditor({ stage, pin, onSaved }: { stage: StageRow; pin: string; onSaved: (msg: string) => void }) {
+function StageEditor({
+  stage,
+  d,
+  pin,
+  onSaved,
+}: {
+  stage: StageRow;
+  d: Derived;
+  pin: string;
+  onSaved: (msg: string) => void;
+}) {
   const [eventId, setEventId] = useState(stage.hltv_event_id?.toString() ?? '');
   const [lockAt, setLockAt] = useState(toLocal(stage.lock_at));
   const [source, setSource] = useState(stage.source);
@@ -40,6 +52,14 @@ function StageEditor({ stage, pin, onSaved }: { stage: StageRow; pin: string; on
   return (
     <div className="card space-y-3">
       <h3 className="font-bold">{stage.name}</h3>
+      <details open={stage.source === 'manual'} className="rounded-lg border border-white/10 p-3">
+        <summary className="cursor-pointer text-sm font-semibold">
+          Lançar resultados {stage.source === 'manual' ? '(modo manual)' : '(ao salvar, a fase passa para manual)'}
+        </summary>
+        <div className="mt-3">
+          <ResultsEditor stage={stage} d={d} pin={pin} onSaved={onSaved} />
+        </div>
+      </details>
       <div className="grid gap-3 sm:grid-cols-3">
         <label className="space-y-1 text-xs text-slate-400">
           ID do evento na HLTV
@@ -90,6 +110,11 @@ export default function Admin() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [msg, setMsg] = useState<string | null>(null);
   const [version, setVersion] = useState(0);
+  const d = useMemo(() => {
+    const m: Partial<Record<StageId, StageRow>> = {};
+    stages.forEach((s) => (m[s.id] = s));
+    return deriveAll(m, {});
+  }, [stages]);
 
   async function login(e?: React.FormEvent) {
     e?.preventDefault();
@@ -164,6 +189,7 @@ export default function Admin() {
         <StageEditor
           key={`${s.id}-${version}`}
           stage={s}
+          d={d}
           pin={pin}
           onSaved={(m) => {
             setMsg(m);
