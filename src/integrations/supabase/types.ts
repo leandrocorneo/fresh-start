@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      pick_history: {
+        Row: {
+          created_at: string
+          headers: Json | null
+          id: number
+          ip: string | null
+          location: string | null
+          picks: Json
+          player_id: string
+          source: string
+          stage_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          headers?: Json | null
+          id?: never
+          ip?: string | null
+          location?: string | null
+          picks: Json
+          player_id: string
+          source?: string
+          stage_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          headers?: Json | null
+          id?: never
+          ip?: string | null
+          location?: string | null
+          picks?: Json
+          player_id?: string
+          source?: string
+          stage_id?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pick_history_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pick_history_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       picks: {
         Row: {
           picks: Json
@@ -115,6 +169,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_restore_pick: { Args: { p_history_id: number }; Returns: undefined }
       login_player: { Args: { p_name: string }; Returns: string }
       pickem_hash: { Args: { p: string }; Returns: string }
       save_player_picks: {
