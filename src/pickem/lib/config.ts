@@ -22,8 +22,9 @@ export const SEEDS: Record<Exclude<StageId, 'playoffs'>, string[]> = {
     '100 Thieves', '9z', 'M80', 'DENDELE', 'Imperial', 'Wildcard', 'BC.Game',
     'FlyQuest', 'Chinggis Warriors', 'Lynn Vision',
   ],
-  stage2: ['FUT', 'Natus Vincere', '1win', 'MIBR', 'Nemiga', 'G2', 'Astralis', 'The MongolZ'],
-  stage3: ['MOUZ', 'Vitality', 'Spirit', 'FURIA', 'Falcons', 'Aurora', 'Legacy', 'BetBoom'],
+  // Convidados: ordem do Valve Global Standings (seeding oficial, conferido na Liquipedia).
+  stage2: ['FUT', 'Nemiga', 'G2', '1win', 'Natus Vincere', 'Astralis', 'The MongolZ', 'MIBR'],
+  stage3: ['MOUZ', 'Vitality', 'FURIA', 'Aurora', 'Spirit', 'BetBoom', 'Falcons', 'Legacy'],
 };
 
 /**

@@ -97,3 +97,31 @@ test('derive: stage 2 usa classificados reais da stage 1', () => {
   expect(d.stage2.complete).toBe(true);
   expect(d.stage3.complete).toBe(false);
 });
+
+test('stage 2: rodada 1 igual à oficial (resultados reais da stage 1)', () => {
+  // [time1, time2, vencedor 1 ou 2], em ordem cronológica, como vieram da HLTV
+  const s1: [string, string, 1 | 2][] = [
+    ['HEROIC', 'Imperial', 2], ['9z', 'Lynn Vision', 2], ['Ninjas in Pyjamas', 'M80', 1], ['100 Thieves', 'Chinggis Warriors', 1],
+    ['Liquid', 'BC.Game', 1], ['PARIVISION', 'DENDELE', 1], ['FaZe', 'Wildcard', 2], ['Eternal Fire', 'FlyQuest', 2],
+    ['HEROIC', 'Chinggis Warriors', 1], ['Ninjas in Pyjamas', 'Lynn Vision', 1], ['9z', 'M80', 2], ['100 Thieves', 'Imperial', 2],
+    ['Eternal Fire', 'DENDELE', 1], ['PARIVISION', 'FlyQuest', 2], ['Liquid', 'Wildcard', 1], ['FaZe', 'BC.Game', 1],
+    ['Eternal Fire', '100 Thieves', 1], ['HEROIC', 'M80', 2], ['Wildcard', 'Lynn Vision', 2], ['PARIVISION', 'FaZe', 1],
+    ['9z', 'DENDELE', 1], ['Imperial', 'FlyQuest', 2], ['Ninjas in Pyjamas', 'Liquid', 1], ['BC.Game', 'Chinggis Warriors', 2],
+    ['M80', 'Eternal Fire', 2], ['HEROIC', 'FaZe', 1], ['Lynn Vision', 'PARIVISION', 2], ['100 Thieves', '9z', 1],
+    ['Imperial', 'Liquid', 2], ['Wildcard', 'Chinggis Warriors', 1], ['Lynn Vision', 'HEROIC', 1], ['Imperial', 'Wildcard', 1],
+    ['M80', '100 Thieves', 2],
+  ];
+  const matches: Match[] = s1.map(([team1, team2, w]) => ({ team1, team2, score1: w === 1 ? 2 : 0, score2: w === 2 ? 2 : 0 }));
+  // times da stage 2 na ordem em que a HLTV lista (não é o seed)
+  const s2teams = ['Natus Vincere', 'Nemiga', 'The MongolZ', 'FUT', 'G2', 'PARIVISION', '1win', 'MIBR', 'Liquid', 'Astralis',
+    'Eternal Fire', 'Ninjas in Pyjamas', '100 Thieves', 'Lynn Vision', 'Imperial', 'FlyQuest'].map((name) => ({ name }));
+  const row = (id: 'stage1' | 'stage2', t: { name: string }[], m: Match[]) =>
+    ({ id, name: id, sort: 1, hltv_event_id: 1, teams: t, matches: m, source: 'hltv' as const, lock_at: null, last_sync: null, sync_error: null });
+  const d = deriveAll({ stage1: row('stage1', teams, matches), stage2: row('stage2', s2teams, []) }, {});
+  const r1 = d.stage2.sim!.rounds[0]!.matches.map((m) => [m.a, m.b]);
+  const official = [
+    ['FUT', 'FlyQuest'], ['Nemiga', 'Ninjas in Pyjamas'], ['G2', 'Liquid'], ['1win', 'Eternal Fire'],
+    ['Natus Vincere', 'PARIVISION'], ['Astralis', 'Imperial'], ['The MongolZ', 'Lynn Vision'], ['MIBR', '100 Thieves'],
+  ].map(([a, b]) => [teamKey(a), teamKey(b)]);
+  expect(r1).toEqual(official);
+});
