@@ -36,25 +36,65 @@ export default function PicksTable({ rows, playoff, locked, myId, logoOf, foreca
   const groups = playoff ? PLAYOFF_GROUPS : SWISS_GROUPS;
   if (rows.length === 0) return <p className="text-sm text-slate-400">Ninguém entrou ainda.</p>;
 
-  // Só exibição: dentro de cada grupo, os times seguem a mesma ordem para todo mundo (mais
-  // escolhidos pela galera primeiro, depois ordem alfabética), para os picks em comum ficarem alinhados.
-  const rank = new Map<string, number>();
+  // Só exibição: cada time ganha uma coluna fixa dentro do grupo, escolhida para que o máximo de
+  // palpites em comum fique na mesma posição para todo mundo. Quando dois times de uma pessoa
+  // disputam a mesma coluna, o mais escolhido pela galera fica nela e o outro vai para a vaga livre.
+  const layout = new Map<string, { col: Map<string, number>; rank: Map<string, number> }>();
   for (const g of groups) {
+    const sets = rows
+      .filter((r) => r.picks)
+      .map((r) => (r.grade?.items ?? []).filter((i) => i.slot === g.slot).map((i) => teamKey(i.team)));
     const count = new Map<string, number>();
-    for (const r of rows) {
-      if (!r.picks) continue;
-      for (const it of r.grade?.items ?? []) {
-        if (it.slot === g.slot) count.set(teamKey(it.team), (count.get(teamKey(it.team)) ?? 0) + 1);
+    sets.forEach((set) => set.forEach((k) => count.set(k, (count.get(k) ?? 0) + 1)));
+    const pop = [...count.keys()].sort((a, b) => count.get(b)! - count.get(a)! || a.localeCompare(b));
+    const rank = new Map(pop.map((k, i) => [k, i]));
+    const col = new Map<string, number>();
+    const score = () => sets.reduce((acc, set) => acc + new Set(set.filter((k) => col.has(k)).map((k) => col.get(k))).size, 0);
+    for (const k of pop) {
+      let best = -1;
+      let bestCol = 0;
+      for (let c = 0; c < g.n; c++) {
+        col.set(k, c);
+        const v = score();
+        if (v > best) [best, bestCol] = [v, c];
+      }
+      col.set(k, bestCol);
+    }
+    for (let improved = true; improved; ) {
+      improved = false;
+      for (const k of pop) {
+        const base = score();
+        const old = col.get(k)!;
+        for (let c = 0; c < g.n; c++) {
+          col.set(k, c);
+          if (score() > base) {
+            improved = true;
+            break;
+          }
+          col.set(k, old);
+        }
       }
     }
-    [...count.entries()]
-      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-      .forEach(([k], i) => rank.set(`${g.slot}|${k}`, i));
+    layout.set(g.slot, { col, rank });
   }
-  const ordered = (items: GradedPick[], slot: string) =>
-    items
+  const placed = (items: GradedPick[], slot: string, n: number): (GradedPick | null)[] => {
+    const { col, rank } = layout.get(slot)!;
+    const mine = items
       .filter((i) => i.slot === slot)
-      .sort((a, b) => (rank.get(`${slot}|${teamKey(a.team)}`) ?? 0) - (rank.get(`${slot}|${teamKey(b.team)}`) ?? 0));
+      .sort((a, b) => (rank.get(teamKey(a.team)) ?? 0) - (rank.get(teamKey(b.team)) ?? 0));
+    const out: (GradedPick | null)[] = Array.from({ length: n }, () => null);
+    const rest: GradedPick[] = [];
+    for (const it of mine) {
+      const c = col.get(teamKey(it.team));
+      if (c !== undefined && c < n && !out[c]) out[c] = it;
+      else rest.push(it);
+    }
+    for (const it of rest) {
+      const free = out.findIndex((x) => !x);
+      if (free >= 0) out[free] = it;
+    }
+    return out;
+  };
 
   return (
     <div className="overflow-x-auto">
@@ -87,13 +127,13 @@ export default function PicksTable({ rows, playoff, locked, myId, logoOf, foreca
                 </td>
                 {picks ? (
                   groups.map((g) => {
-                    const cell = ordered(items, g.slot);
+                    const cell = placed(items, g.slot, g.n);
                     return (
                       <td key={g.slot} className={`px-2 py-1.5 ${g.bg}`}>
                         <div className="flex justify-center gap-1">
-                          {Array.from({ length: g.n }).map((_, i) =>
-                            cell[i] ? (
-                              <TeamLogo key={i} name={cell[i].team} logo={logoOf(cell[i].team)} size={36} status={cell[i].status} />
+                          {cell.map((it, i) =>
+                            it ? (
+                              <TeamLogo key={i} name={it.team} logo={logoOf(it.team)} size={36} status={it.status} />
                             ) : (
                               <div key={i} className="h-9 w-9 rounded-full border border-dashed border-white/20" />
                             ),
