@@ -1,5 +1,6 @@
 import { SWISS_PASS } from '../lib/config';
 import type { Grade } from '../lib/scoring';
+import { teamKey } from '../lib/teams';
 import type { AnyPicks, GradedPick, Player } from '../lib/types';
 import TeamLogo from './TeamLogo';
 
@@ -35,6 +36,26 @@ export default function PicksTable({ rows, playoff, locked, myId, logoOf, foreca
   const groups = playoff ? PLAYOFF_GROUPS : SWISS_GROUPS;
   if (rows.length === 0) return <p className="text-sm text-slate-400">Ninguém entrou ainda.</p>;
 
+  // Só exibição: dentro de cada grupo, os times seguem a mesma ordem para todo mundo (mais
+  // escolhidos pela galera primeiro, depois ordem alfabética), para os picks em comum ficarem alinhados.
+  const rank = new Map<string, number>();
+  for (const g of groups) {
+    const count = new Map<string, number>();
+    for (const r of rows) {
+      if (!r.picks) continue;
+      for (const it of r.grade?.items ?? []) {
+        if (it.slot === g.slot) count.set(teamKey(it.team), (count.get(teamKey(it.team)) ?? 0) + 1);
+      }
+    }
+    [...count.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .forEach(([k], i) => rank.set(`${g.slot}|${k}`, i));
+  }
+  const ordered = (items: GradedPick[], slot: string) =>
+    items
+      .filter((i) => i.slot === slot)
+      .sort((a, b) => (rank.get(`${slot}|${teamKey(a.team)}`) ?? 0) - (rank.get(`${slot}|${teamKey(b.team)}`) ?? 0));
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full border-separate border-spacing-y-1.5 text-sm">
@@ -66,7 +87,7 @@ export default function PicksTable({ rows, playoff, locked, myId, logoOf, foreca
                 </td>
                 {picks ? (
                   groups.map((g) => {
-                    const cell = items.filter((i) => i.slot === g.slot);
+                    const cell = ordered(items, g.slot);
                     return (
                       <td key={g.slot} className={`px-2 py-1.5 ${g.bg}`}>
                         <div className="flex justify-center gap-1">
