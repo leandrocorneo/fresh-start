@@ -16,6 +16,7 @@ import {
   type Grade,
 } from './lib/scoring';
 import { teamKey } from './lib/teams';
+import { useForecast } from './lib/useForecast';
 import type { AnyPicks, PlayoffPicks, StageId, StageRow, SwissPicks, SwissStageId } from './lib/types';
 import NameGate from './components/NameGate';
 import SwissSimulator from './components/SwissSimulator';
@@ -134,6 +135,8 @@ export default function App() {
     },
     [data, identity?.playerId, stageMap],
   );
+
+  const forecast = useForecast(tab, d, stageMap, data, visiblePicks);
 
   if (!identity || editingName) {
     return (
@@ -382,7 +385,7 @@ export default function App() {
       {/* tabela da galera */}
       <section className="card space-y-3">
         <h2 className="text-lg font-bold">Palpites da galera · {STAGES.find((s) => s.id === tab)!.label}</h2>
-        <PicksTable rows={tableRows} playoff={isPlayoff} locked={locked} myId={identity.playerId} logoOf={d.logoOf} />
+        <PicksTable rows={tableRows} playoff={isPlayoff} locked={locked} myId={identity.playerId} logoOf={d.logoOf} forecast={forecast} />
         <p className="text-xs text-slate-500">
           ✗ vermelho = palpite que já não tem como acertar · ✓ verde = acerto confirmado · sem marca = em aberto. 3:0 só vale com
           3-0, 3:1/3:2 só vale classificando com 3-1 ou 3-2, 0:3 só vale com 0-3.

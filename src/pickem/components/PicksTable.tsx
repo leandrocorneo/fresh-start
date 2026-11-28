@@ -16,6 +16,8 @@ interface Props {
   locked: boolean;
   myId?: string;
   logoOf: (name: string) => string | null;
+  /** Coluna opcional de previsão (texto por jogador). Sem ela a tabela fica como antes. */
+  forecast?: { label: string; hint: string; values: Map<string, string> } | undefined;
 }
 
 const SWISS_GROUPS = [
@@ -29,7 +31,7 @@ const PLAYOFF_GROUPS = [
   { slot: 'final', label: 'Campeão', bg: 'bg-amber-700/60', n: 1 },
 ];
 
-export default function PicksTable({ rows, playoff, locked, myId, logoOf }: Props) {
+export default function PicksTable({ rows, playoff, locked, myId, logoOf, forecast }: Props) {
   const groups = playoff ? PLAYOFF_GROUPS : SWISS_GROUPS;
   if (rows.length === 0) return <p className="text-sm text-slate-400">Ninguém entrou ainda.</p>;
 
@@ -45,6 +47,11 @@ export default function PicksTable({ rows, playoff, locked, myId, logoOf }: Prop
               </th>
             ))}
             <th className="px-2 text-center">Acertos</th>
+            {forecast && (
+              <th className="px-2 text-center" title={forecast.hint}>
+                {forecast.label}
+              </th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -79,7 +86,7 @@ export default function PicksTable({ rows, playoff, locked, myId, logoOf }: Prop
                     {submitted ? '✓ palpite enviado' : 'ainda não enviou'}
                   </td>
                 )}
-                <td className="rounded-r-lg bg-[#16213a] px-3 py-2 text-center">
+                <td className={`${forecast ? '' : 'rounded-r-lg '}bg-[#16213a] px-3 py-2 text-center`}>
                   {grade && picks ? (
                     <div className="leading-tight">
                       <span className="font-bold text-green-400">{grade.correct}</span>
@@ -96,6 +103,11 @@ export default function PicksTable({ rows, playoff, locked, myId, logoOf }: Prop
                     <span className="text-slate-500">—</span>
                   )}
                 </td>
+                {forecast && (
+                  <td className="rounded-r-lg bg-[#16213a] px-3 py-2 text-center font-mono font-bold" title={forecast.hint}>
+                    {forecast.values.get(player.id) ?? <span className="font-sans font-normal text-slate-500">—</span>}
+                  </td>
+                )}
               </tr>
             );
           })}
