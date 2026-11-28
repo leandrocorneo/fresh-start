@@ -20,6 +20,13 @@ function pct(p: number): string {
   return `${Math.round(p * 100)}%`;
 }
 
+/** Os times da fase já são os reais (não os de uma simulação do usuário)? */
+export function stageTeamsReal(tab: StageId, d: Derived, stageMap: Partial<Record<StageId, StageRow>>): boolean {
+  if (tab === 'playoffs') return d.playoffs.teams.length === 8 && (d.playoffs.fromReal || d.stage3.realDone);
+  const prev = PREV[tab];
+  return d[tab].complete && (!prev || (stageMap[tab]?.teams.length ?? 0) >= 16 || d[prev].realDone);
+}
+
 /**
  * Previsão da aba aberta: chance de passar (Swiss) ou acertos esperados (playoffs).
  * Só aparece quando os times da fase já são os reais (não os de uma simulação do usuário).
@@ -38,8 +45,7 @@ export function useForecast(
       .filter((p): p is { playerId: string; picks: AnyPicks } => !!p.picks);
 
     if (tab === 'playoffs') {
-      const ready = d.playoffs.teams.length === 8 && (d.playoffs.fromReal || d.stage3.realDone);
-      if (!ready) return null;
+      if (!stageTeamsReal(tab, d, stageMap)) return null;
       return {
         kind: 'playoffs' as const,
         key: JSON.stringify([tab, d.playoffs.teams.map((t) => t.name), d.playoffs.matches, picks]),
@@ -49,9 +55,7 @@ export function useForecast(
     }
 
     const sd = d[tab];
-    const prev = PREV[tab];
-    const realTeams = !prev || (stageMap[tab]?.teams.length ?? 0) >= 16 || d[prev].realDone;
-    if (!sd.complete || !realTeams) return null;
+    if (!stageTeamsReal(tab, d, stageMap)) return null;
     return {
       kind: 'swiss' as const,
       key: JSON.stringify([tab, sd.teams.map((t) => t.name), sd.matches, picks]),

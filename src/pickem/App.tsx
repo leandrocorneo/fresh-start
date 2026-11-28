@@ -25,6 +25,7 @@ import PlayoffPicker from './components/PlayoffPicker';
 import RealStandings from './components/RealStandings';
 import PicksTable, { type TableRow } from './components/PicksTable';
 import TeamLogo from './components/TeamLogo';
+import ModelSuggestion from './components/ModelSuggestion';
 
 const fmt = (iso: string | null) =>
   iso ? new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—';
@@ -333,6 +334,14 @@ export default function App() {
                 statusOf={(t, c) => swissPickStatus(c, swissD!.realRecs.get(teamKey(t)))}
               />
             )}
+            <ModelSuggestion
+              stage={tab}
+              row={row}
+              d={d}
+              stageMap={stageMap}
+              hasDraft={Object.values(draft).some((v) => Array.isArray(v) && v.some(Boolean))}
+              onApply={setDraft}
+            />
             {!locked && (
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs text-slate-400">
