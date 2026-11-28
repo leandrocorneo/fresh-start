@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { adminCall, loadData, triggerSync } from '../lib/api';
 import type { Player, StageRow } from '../lib/types';
+import PickHistory from './PickHistory';
 
 const PIN_KEY = 'pickem-admin-pin';
 
@@ -189,6 +190,15 @@ export default function Admin() {
           </div>
         ))}
       </section>
+
+      <PickHistory
+        pin={pin}
+        players={players}
+        onRestored={(m) => {
+          setMsg(m);
+          refresh();
+        }}
+      />
     </div>
   );
 }

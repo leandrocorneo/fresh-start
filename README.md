@@ -8,6 +8,9 @@ que marca em vermelho cada palpite que já errou, conferindo com os resultados d
 - **Identificação:** ao abrir o site a pessoa digita o nome. Se o nome já existe (sem diferenciar maiúsculas), ela entra
   nessa conta, em qualquer navegador ou aparelho; se não, uma conta nova é criada. Não há senha: qualquer um pode entrar na
   conta de outro digitando o nome dele (`docs/sql/004_login_por_nome.sql`).
+- **Histórico (anti-trolagem):** cada palpite salvo gera uma versão com IP, local aproximado e navegador
+  (`docs/sql/005_historico_picks.sql`). Só o admin vê, em `/#admin`, e pode restaurar qualquer versão, mesmo com a fase
+  fechada. O local vem de uma consulta do IP no ipwho.is, feita quando o admin abre o histórico.
 - **Simulador:** a rodada 1 é seed 1 x 9, 2 x 10 etc. Nas seguintes, os times com a mesma campanha se enfrentam, o melhor
   colocado (Buchholz, depois seed) contra o pior, sem repetir confronto. É uma aproximação do pareamento da Valve. Jogos que já
   aconteceram entram travados com o selo **HLTV**. Quando a simulação termina, "Usar esta simulação" preenche o Pick'em
