@@ -15,6 +15,13 @@
       "when": 1795803752986,
       "tag": "0001_picks_publicos",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795825411262,
+      "tag": "0002_login_por_nome",
+      "breakpoints": true
     }
   ]
 }

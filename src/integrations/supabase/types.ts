@@ -55,19 +55,19 @@ export type Database = {
           created_at: string
           id: string
           name: string
-          token_hash: string
+          token_hash: string | null
         }
         Insert: {
           created_at?: string
           id?: string
           name: string
-          token_hash: string
+          token_hash?: string | null
         }
         Update: {
           created_at?: string
           id?: string
           name?: string
-          token_hash?: string
+          token_hash?: string | null
         }
         Relationships: []
       }
@@ -115,21 +115,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_my_picks: {
-        Args: { p_token: string }
-        Returns: {
-          picks: Json
-          stage_id: string
-          updated_at: string
-        }[]
-      }
+      login_player: { Args: { p_name: string }; Returns: string }
       pickem_hash: { Args: { p: string }; Returns: string }
-      register_player: {
-        Args: { p_name: string; p_token: string }
-        Returns: string
-      }
-      save_picks: {
-        Args: { p_picks: Json; p_stage: string; p_token: string }
+      save_player_picks: {
+        Args: { p_picks: Json; p_player: string; p_stage: string }
         Returns: undefined
       }
       submitted_players: {
