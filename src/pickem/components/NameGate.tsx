@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { registerPlayer } from '../lib/api';
-import { newToken, saveIdentity, type Identity } from '../lib/identity';
+import { loginPlayer } from '../lib/api';
+import { saveIdentity, type Identity } from '../lib/identity';
 
 interface Props {
   current?: Identity | null;
@@ -8,7 +8,7 @@ interface Props {
   onCancel?: () => void;
 }
 
-/** Pede o nome ao abrir o site. O token fica no localStorage e identifica a pessoa depois. */
+/** Pede o nome ao abrir o site. Nome que já existe entra na conta dele; nome novo cria uma conta. */
 export default function NameGate({ current, onDone, onCancel }: Props) {
   const [name, setName] = useState(current?.name ?? '');
   const [busy, setBusy] = useState(false);
@@ -19,9 +19,8 @@ export default function NameGate({ current, onDone, onCancel }: Props) {
     setBusy(true);
     setErr(null);
     try {
-      const token = current?.token ?? newToken();
-      const playerId = await registerPlayer(name.trim(), token);
-      const id = { token, name: name.trim(), playerId };
+      const playerId = await loginPlayer(name.trim());
+      const id = { name: name.trim(), playerId };
       saveIdentity(id);
       onDone(id);
     } catch (e) {
@@ -35,10 +34,10 @@ export default function NameGate({ current, onDone, onCancel }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
       <form onSubmit={submit} className="card w-full max-w-sm space-y-4">
         <div>
-          <h2 className="text-lg font-bold">{current ? 'Trocar nome' : 'Quem é você?'}</h2>
+          <h2 className="text-lg font-bold">{current ? 'Trocar conta' : 'Quem é você?'}</h2>
           <p className="mt-1 text-sm text-slate-400">
-            Seu nome aparece na tabela de palpites. Este navegador fica salvo como seu — se limpar os dados do site, você
-            perde o acesso aos seus palpites.
+            Digite seu nome. Se ele já existe, você entra na conta e vê seus palpites; se não, uma conta nova é criada.
+            Use sempre o mesmo nome, em qualquer aparelho.
           </p>
         </div>
         <input

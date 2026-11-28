@@ -14,31 +14,34 @@ function check<T>(r: { data: T | null; error: { message: string } | null }): T {
   return (r.data ?? []) as T;
 }
 
-export async function loadData(token?: string): Promise<AppData> {
-  const [stages, players, picks, submitted, mine] = await Promise.all([
+export async function loadData(playerId?: string): Promise<AppData> {
+  const [stages, players, picks, submitted] = await Promise.all([
     supabase.from('stages').select('*').order('sort'),
     supabase.from('players').select('id,name').order('created_at'),
     supabase.from('picks').select('player_id,stage_id,picks,updated_at'),
     supabase.rpc('submitted_players'),
-    token ? supabase.rpc('get_my_picks', { p_token: token }) : Promise.resolve({ data: [], error: null }),
   ]);
+  const allPicks = check(picks) as PickRow[];
   return {
     stages: check(stages) as StageRow[],
     players: check(players) as Player[],
-    picks: check(picks) as PickRow[],
+    picks: allPicks,
     submitted: check(submitted) as AppData['submitted'],
-    mine: check(mine) as AppData['mine'],
+    mine: allPicks
+      .filter((p) => p.player_id === playerId)
+      .map((p) => ({ stage_id: p.stage_id, picks: p.picks, updated_at: p.updated_at ?? '' })),
   };
 }
 
-export async function registerPlayer(name: string, token: string): Promise<string> {
-  const { data, error } = await supabase.rpc('register_player', { p_name: name, p_token: token });
+/** Entra na conta com esse nome, ou cria uma nova se o nome ainda não existe. */
+export async function loginPlayer(name: string): Promise<string> {
+  const { data, error } = await supabase.rpc('login_player', { p_name: name });
   if (error) throw new Error(error.message);
   return data as string;
 }
 
-export async function savePicks(token: string, stage: StageId, picks: AnyPicks) {
-  const { error } = await supabase.rpc('save_picks', { p_token: token, p_stage: stage, p_picks: picks });
+export async function savePicks(playerId: string, stage: StageId, picks: AnyPicks) {
+  const { error } = await supabase.rpc('save_player_picks', { p_player: playerId, p_stage: stage, p_picks: picks });
   if (error) throw new Error(error.message);
 }
 

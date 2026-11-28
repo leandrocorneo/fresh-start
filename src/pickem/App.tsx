@@ -49,7 +49,7 @@ export default function App() {
 
   const reload = useCallback(async () => {
     try {
-      const d = await loadData(identity?.token);
+      const d = await loadData(identity?.playerId);
       setData(d);
       setLoadErr(null);
       return d;
@@ -57,7 +57,7 @@ export default function App() {
       setLoadErr(e instanceof Error ? e.message : String(e));
       return null;
     }
-  }, [identity?.token]);
+  }, [identity?.playerId]);
 
   const sync = useCallback(async () => {
     setSyncing(true);
@@ -173,7 +173,7 @@ export default function App() {
     if (!identity) return;
     setSaving(true);
     try {
-      await savePicks(identity.token, tab!, draft);
+      await savePicks(identity.playerId, tab!, draft);
       setDirty((prev) => ({ ...prev, [tab!]: false }));
       await reload();
       setToast({ ok: true, msg: 'Palpite salvo!' });
@@ -227,7 +227,7 @@ export default function App() {
           <span className="text-slate-400">Você é</span>
           <span className="font-bold text-sky-300">{identity.name}</span>
           <button className="btn-ghost" onClick={() => setEditingName(true)}>
-            Trocar nome
+            Trocar conta
           </button>
         </div>
       </header>

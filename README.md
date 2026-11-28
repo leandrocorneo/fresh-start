@@ -5,9 +5,9 @@ que marca em vermelho cada palpite que já errou, conferindo com os resultados d
 
 ## Como funciona
 
-- **Identificação:** ao abrir o site a pessoa digita o nome. Um token aleatório fica no `localStorage` e só o hash dele vai
-  para o banco. É esse token que permite editar os próprios palpites depois. Se a pessoa limpar os dados do navegador, perde
-  o acesso (o admin pode apagar o jogador e ela entra de novo).
+- **Identificação:** ao abrir o site a pessoa digita o nome. Se o nome já existe (sem diferenciar maiúsculas), ela entra
+  nessa conta, em qualquer navegador ou aparelho; se não, uma conta nova é criada. Não há senha: qualquer um pode entrar na
+  conta de outro digitando o nome dele (`docs/sql/004_login_por_nome.sql`).
 - **Simulador:** a rodada 1 é seed 1 x 9, 2 x 10 etc. Nas seguintes, os times com a mesma campanha se enfrentam, o melhor
   colocado (Buchholz, depois seed) contra o pior, sem repetir confronto. É uma aproximação do pareamento da Valve. Jogos que já
   aconteceram entram travados com o selo **HLTV**. Quando a simulação termina, "Usar esta simulação" preenche o Pick'em
